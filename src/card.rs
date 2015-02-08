@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 
+#[derive(Debug)]
 pub enum Suit {
     Diamond,
     Club,
@@ -30,6 +31,7 @@ impl PartialOrd for Suit {
     }
 }
 
+#[derive(Debug)]
 pub enum Value {
     Ace,
     Two,
@@ -78,9 +80,20 @@ impl PartialOrd for Value {
     }
 }
 
+struct Card {
+    value: Value,
+    suit: Suit,
+}
+
+impl Card {
+    fn new(value: Value, suit: Suit) -> Card {
+        Card { value: value, suit: suit }
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use super::Suit::{Diamond, Club, Heart, Spade};
+    use super::Suit::*;
     #[test] fn suits_equal_themselves() {
         assert!(Diamond == Diamond);
         assert!(Club == Club);
@@ -124,7 +137,7 @@ mod test {
         assert!(Spade > Heart);
     }
 
-    use super::Value::{Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King};
+    use super::Value::*;
     #[test] fn values_equal_themselves() {
         assert!(Ace == Ace);
         assert!(Two == Two);
@@ -171,5 +184,12 @@ mod test {
         assert!(Queen < King);
         assert!(King < Ace);
         assert!(Two < Ace);
+    }
+
+    use super::Card;
+    #[test] fn cards_have_value_and_suit() {
+        let card = Card::new(Three, Heart);
+        assert!(card.value == Three);
+        assert!(card.suit == Heart);
     }
 }
