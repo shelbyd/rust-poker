@@ -1,6 +1,7 @@
-use card::{Card, Value};
+use card::{Card, Value, Suit, CardParseErr};
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 enum HandRank {
     HighCard,
@@ -71,6 +72,32 @@ impl Hand {
     }
 }
 
+impl FromStr for Hand {
+    type Err = HandParseErr;
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        let cards: Vec<Option<Card>> = s.split_str(" ")
+            .collect::<Vec<&str>>()
+            .iter()
+            .map(|card_string| {
+                match card_string.parse() {
+                    Ok(result) => Some(result),
+                    _ => None,
+                }
+            })
+            .collect();
+        let any_failed = cards.iter().any(|card| card.is_none());
+        match any_failed {
+            true => Err(HandParseErr::Err),
+            false => Ok(Hand { cards: cards.into_iter().map(|card| card.unwrap()).collect()
+            }),
+        }
+    }
+}
+
+enum HandParseErr {
+    Err
+}
+
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
         match self.categorize().eq(&other.categorize()) {
@@ -94,42 +121,21 @@ mod test {
     use card::Value::*;
     use card::Suit::*;
     use card::Card;
-    use super::Hand;
+    use super::{Hand, HandParseErr};
+
+    fn parse_hand(s: &str) -> Hand {
+        s.parse().ok().unwrap()
+    }
 
     #[test] fn high_card_equals_high_card() {
-        let high_card = Hand::new(vec![
-            Card::new(Five, Diamond),
-            Card::new(Six, Heart),
-            Card::new(Seven, Heart),
-            Card::new(Ace, Spade),
-            Card::new(Jack, Diamond),
-        ]);
-        let other_high_card = Hand::new(vec![
-            Card::new(Five, Heart),
-            Card::new(Six, Club),
-            Card::new(Seven, Club),
-            Card::new(Ace, Spade),
-            Card::new(Jack, Diamond),
-        ]);
-
+        let high_card = parse_hand("5D 6H 7H AS JD");
+        let other_high_card = parse_hand("5H 6C 7C AS JD");
         assert!(high_card == other_high_card);
     }
 
     #[test] fn high_card_beats_a_lower_high_card() {
-        let ace_high_card = Hand::new(vec![
-            Card::new(Ace, Spade),
-            Card::new(Six, Heart),
-            Card::new(Seven, Heart),
-            Card::new(Jack, Diamond),
-            Card::new(Queen, Heart),
-        ]);
-        let king_high_card = Hand::new(vec![
-            Card::new(King, Spade),
-            Card::new(Seven, Club),
-            Card::new(Eight, Club),
-            Card::new(Jack, Diamond),
-            Card::new(Queen, Heart),
-        ]);
+        let ace_high_card = parse_hand("AS 6H 7H JD QH");
+        let king_high_card = parse_hand("KS 7C 8C JD QH");
 
         assert!(ace_high_card != king_high_card);
         assert!(ace_high_card > king_high_card);
@@ -137,20 +143,8 @@ mod test {
     }
 
     #[test] fn a_pair_beats_a_high_card() {
-        let pair_of_threes = Hand::new(vec![
-            Card::new(Three, Spade),
-            Card::new(Three, Heart),
-            Card::new(Seven, Heart),
-            Card::new(Jack, Diamond),
-            Card::new(Queen, Heart),
-        ]);
-        let king_high_card = Hand::new(vec![
-            Card::new(King, Spade),
-            Card::new(Four, Club),
-            Card::new(Eight, Club),
-            Card::new(Jack, Diamond),
-            Card::new(Queen, Heart),
-        ]);
+        let pair_of_threes = parse_hand("3S 3H 7H JD QH");
+        let king_high_card = parse_hand("KS 4C 8C JD QH");
 
         assert!(pair_of_threes != king_high_card);
         assert!(pair_of_threes > king_high_card);
@@ -158,20 +152,8 @@ mod test {
     }
 
     #[test] fn a_pair_beats_a_worse_pair() {
-        let pair_of_threes = Hand::new(vec![
-            Card::new(Three, Spade),
-            Card::new(Three, Heart),
-            Card::new(Seven, Heart),
-            Card::new(Jack, Diamond),
-            Card::new(Queen, Heart),
-        ]);
-        let pair_of_twos = Hand::new(vec![
-            Card::new(Two, Spade),
-            Card::new(Two, Heart),
-            Card::new(Seven, Heart),
-            Card::new(Jack, Diamond),
-            Card::new(Queen, Heart),
-        ]);
+        let pair_of_threes = parse_hand("3S 3H 7H JD QH");
+        let pair_of_twos = parse_hand("2S 2H 7H JD QH");
 
         assert!(pair_of_threes != pair_of_twos);
         assert!(pair_of_threes > pair_of_twos);

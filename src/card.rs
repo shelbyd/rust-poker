@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-
+use std::str::FromStr;
 
 #[derive(Debug, Eq, Ord)]
 pub enum Suit {
@@ -87,6 +87,44 @@ pub struct Card {
     suit: Suit,
 }
 
+impl FromStr for Card {
+    type Err = CardParseErr;
+    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
+        let mut iter = s.chars();
+        let value = match iter.next() {
+            Some('A') => Some(Value::Ace),
+            Some('2') => Some(Value::Two),
+            Some('3') => Some(Value::Three),
+            Some('4') => Some(Value::Four),
+            Some('5') => Some(Value::Five),
+            Some('6') => Some(Value::Six),
+            Some('7') => Some(Value::Seven),
+            Some('8') => Some(Value::Eight),
+            Some('9') => Some(Value::Nine),
+            Some('0') => Some(Value::Ten),
+            Some('J') => Some(Value::Jack),
+            Some('Q') => Some(Value::Queen),
+            Some('K') => Some(Value::King),
+            _ => None,
+        };
+        let suit = match iter.next() {
+            Some('D') => Some(Suit::Diamond),
+            Some('C') => Some(Suit::Club),
+            Some('H') => Some(Suit::Heart),
+            Some('S') => Some(Suit::Spade),
+            _ => None,
+        };
+        match (value, suit) {
+            (Some(value), Some(suit)) => Ok(Card::new(value, suit)),
+            _ => Err(CardParseErr::Err),
+        }
+    }
+}
+
+pub enum CardParseErr {
+    Err
+}
+
 impl Card {
     pub fn new(value: Value, suit: Suit) -> Card {
         Card { value: value, suit: suit }
@@ -95,10 +133,6 @@ impl Card {
     pub fn value(&self) -> &Value {
         &self.value
     }
-
-//    pub fn suit(&self) -> &Suit {
-//        &self.suit
-//    }
 }
 
 impl PartialEq for Card {
