@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
-#[derive(Debug)]
+
+#[derive(Debug, Eq, Ord)]
 pub enum Suit {
     Diamond,
     Club,
@@ -31,7 +32,7 @@ impl PartialOrd for Suit {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, Ord, Hash)]
 pub enum Value {
     Ace,
     Two,
@@ -80,14 +81,30 @@ impl PartialOrd for Value {
     }
 }
 
-struct Card {
+#[derive(Eq)]
+pub struct Card {
     value: Value,
     suit: Suit,
 }
 
 impl Card {
-    fn new(value: Value, suit: Suit) -> Card {
+    pub fn new(value: Value, suit: Suit) -> Card {
         Card { value: value, suit: suit }
+    }
+
+    pub fn value(&self) -> &Value {
+        &self.value
+    }
+
+//    pub fn suit(&self) -> &Suit {
+//        &self.suit
+//    }
+}
+
+impl PartialEq for Card {
+    fn eq(&self, other: &Self) -> bool {
+        self.value.eq(&other.value) &&
+        self.suit.eq(&other.suit)
     }
 }
 
