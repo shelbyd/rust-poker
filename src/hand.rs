@@ -1,11 +1,12 @@
-use card::{Card, Value, Suit, CardParseErr};
+use card::{Card, Value};
 use std::cmp::Ordering;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
 enum HandRank {
     HighCard,
     Pair,
+    TwoPair,
 }
 
 impl HandRank {
@@ -13,6 +14,7 @@ impl HandRank {
         match self {
             &HandRank::HighCard => 0,
             &HandRank::Pair => 1,
+            &HandRank::TwoPair => 2,
         }
     }
 }
@@ -39,10 +41,18 @@ impl Hand {
     }
 
     fn categorize(&self) -> HandRank {
-        if self.cards.iter().any(|card| self.cards.iter().filter(|inner_card| card.value() == inner_card.value()).count() > 1) {
-            HandRank::Pair
-        } else {
-            HandRank::HighCard
+        let values_with_more_than_one = self.cards.iter()
+            .map(|card| card.value())
+            .filter(|&value| {
+                self.cards.iter().filter(|inner_card| value == inner_card.value()).count() > 1
+            }).fold(HashSet::new(), |mut set, value| {
+                set.insert(value);
+                set
+            });
+        match values_with_more_than_one.len() {
+            2 => HandRank::TwoPair,
+            1 => HandRank::Pair,
+            _ => HandRank::HighCard,
         }
     }
 
@@ -64,7 +74,7 @@ impl Hand {
         };
         match mapped
             .iter()
-            .filter(|&(&value, count)| count == max_count)
+            .filter(|&(_, count)| count == max_count)
             .max_by(|&(&value, _)| value) {
                 Some((&v, _)) => Some(v),
                 None => None
@@ -88,8 +98,7 @@ impl FromStr for Hand {
         let any_failed = cards.iter().any(|card| card.is_none());
         match any_failed {
             true => Err(HandParseErr::Err),
-            false => Ok(Hand { cards: cards.into_iter().map(|card| card.unwrap()).collect()
-            }),
+            false => Ok(Hand::new(cards.into_iter().map(|card| card.unwrap()).collect())),
         }
     }
 }
@@ -118,10 +127,7 @@ impl PartialOrd for Hand {
 
 #[cfg(test)]
 mod test {
-    use card::Value::*;
-    use card::Suit::*;
-    use card::Card;
-    use super::{Hand, HandParseErr};
+    use super::Hand;
 
     fn parse_hand(s: &str) -> Hand {
         s.parse().ok().unwrap()
@@ -158,5 +164,23 @@ mod test {
         assert!(pair_of_threes != pair_of_twos);
         assert!(pair_of_threes > pair_of_twos);
         assert!(pair_of_twos < pair_of_threes);
+    }
+
+    #[test] fn two_pair_beats_a_pair() {
+        let two_pair = parse_hand("2S 2H 3H 3D QH");
+        let pair_of_sixes = parse_hand("6S 6H 7H JD QH");
+
+        assert!(two_pair != pair_of_sixes);
+        assert!(two_pair > pair_of_sixes);
+        assert!(pair_of_sixes < two_pair);
+    }
+
+    #[test] fn two_pair_beats_a_lower_two_pair() {
+        let high_two_pair = parse_hand("4S 4H 5H 5D QH");
+        let low_two_pair = parse_hand("2S 2H 3H 3D QH");
+
+        assert!(high_two_pair != low_two_pair);
+        assert!(high_two_pair > low_two_pair);
+        assert!(low_two_pair < high_two_pair);
     }
 }

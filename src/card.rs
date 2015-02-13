@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-#[derive(Debug, Eq, Ord)]
+#[derive(Debug, Eq, Ord, Hash)]
 pub enum Suit {
     Diamond,
     Club,
@@ -81,7 +81,7 @@ impl PartialOrd for Value {
     }
 }
 
-#[derive(Eq)]
+#[derive(Debug, Eq, Hash)]
 pub struct Card {
     value: Value,
     suit: Suit,
