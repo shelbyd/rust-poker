@@ -56,7 +56,7 @@ impl Hand {
         }
     }
 
-    fn most_common_value(&self) -> Option<&Value> {
+    fn most_common_values(&self) -> Vec<&Value> {
         let mapped = self.cards.iter()
                                  .map(|card| card.value())
                                  .fold(HashMap::new(), |mut map, value| {
@@ -67,18 +67,17 @@ impl Hand {
                                      map.insert(value, new_value);
                                      map
                                  });
-        let default = &0;
-        let max_count = match mapped.iter().map(|(_, count)| count).max() {
-            Some(v) => v,
-            None => default,
-        };
-        match mapped
-            .iter()
-            .filter(|&(_, count)| count == max_count)
-            .max_by(|&(&value, _)| value) {
-                Some((&v, _)) => Some(v),
-                None => None
+        let mut tuples = vec![];
+        for (value, count) in mapped.into_iter() {
+            tuples.push((value, count));
+        }
+        tuples.sort_by(|&(value_left, count_left), &(value_right, count_right)| {
+            match count_left.cmp(&count_right) {
+                Ordering::Equal => value_left.cmp(&value_right),
+                other => other,
             }
+        });
+        tuples.iter().map(|&(value, _)| value).collect()
     }
 }
 
@@ -109,9 +108,9 @@ enum HandParseErr {
 
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
-        match self.categorize().eq(&other.categorize()) {
-            true => self.most_common_value().eq(&other.most_common_value()),
-            false => false
+        match self.partial_cmp(other) {
+            Some(Ordering::Equal) => true,
+            _ => false,
         }
     }
 }
@@ -119,7 +118,9 @@ impl PartialEq for Hand {
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match self.categorize().partial_cmp(&other.categorize()) {
-            Some(Ordering::Equal) => self.most_common_value().partial_cmp(&other.most_common_value()),
+            Some(Ordering::Equal) => {
+                self.most_common_values().partial_cmp(&other.most_common_values())
+            },
             other => other
         }
     }
@@ -178,6 +179,24 @@ mod test {
     #[test] fn two_pair_beats_a_lower_two_pair() {
         let high_two_pair = parse_hand("4S 4H 5H 5D QH");
         let low_two_pair = parse_hand("2S 2H 3H 3D QH");
+
+        assert!(high_two_pair != low_two_pair);
+        assert!(high_two_pair > low_two_pair);
+        assert!(low_two_pair < high_two_pair);
+    }
+
+    #[test] fn two_pair_tied_first_decides_with_lower() {
+        let high_two_pair = parse_hand("4S 4H 5H 5D QH");
+        let low_two_pair = parse_hand("2S 2H 5H 5D QH");
+
+        assert!(high_two_pair != low_two_pair);
+        assert!(high_two_pair > low_two_pair);
+        assert!(low_two_pair < high_two_pair);
+    }
+
+    #[test] fn two_pair_tied_all_decides_with_last_card() {
+        let high_two_pair = parse_hand("4S 4H 5H 5D AH");
+        let low_two_pair = parse_hand("4S 4H 5H 5D KH");
 
         assert!(high_two_pair != low_two_pair);
         assert!(high_two_pair > low_two_pair);
