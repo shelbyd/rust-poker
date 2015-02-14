@@ -1,13 +1,16 @@
 use card::{Card, Value};
+use card::Value::*;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
+#[derive(Debug)]
 enum HandRank {
     HighCard,
     Pair,
     TwoPair,
     ThreeOfAKind,
+    Straight,
 }
 
 impl HandRank {
@@ -17,6 +20,7 @@ impl HandRank {
             &HandRank::Pair => 1,
             &HandRank::TwoPair => 2,
             &HandRank::ThreeOfAKind => 3,
+            &HandRank::Straight => 4,
         }
     }
 }
@@ -43,6 +47,9 @@ impl Hand {
     }
 
     fn categorize(&self) -> HandRank {
+        if self.is_straight() {
+            return HandRank::Straight
+        };
         let values_with_more_than_one = self.cards.iter()
             .map(|card| card.value())
             .filter(|&value| {
@@ -54,14 +61,33 @@ impl Hand {
         match values_with_more_than_one.len() {
             2 => HandRank::TwoPair,
             1 => {
-                let thing: Vec<&Card> = self.cards.iter().filter(|card| values_with_more_than_one.contains(card.value())).collect();
-                let count_of_value = thing.len();
-                match count_of_value {
+                match self.cards.iter().filter(|card| values_with_more_than_one.contains(card.value())).collect::<Vec<_>>().len() {
                     3 => HandRank::ThreeOfAKind,
                     _ => HandRank::Pair,
                 }
             },
             _ => HandRank::HighCard,
+        }
+    }
+
+    fn is_straight(&self) -> bool {
+        let mut values = self.cards.iter().map(|card| card.value()).collect::<Vec<&Value>>();
+        values.sort();
+
+        let mut value_iter = values.iter();
+
+        match (value_iter.next(), value_iter.next(), value_iter.next(), value_iter.next(), value_iter.next()) {
+            (Some(&&Two), Some(&&Three), Some(&&Four), Some(&&Five), Some(&&Ace)) => true,
+            (Some(&&Two), Some(&&Three), Some(&&Four), Some(&&Five), Some(&&Six)) => true,
+            (Some(&&Three), Some(&&Four), Some(&&Five), Some(&&Six), Some(&&Seven)) => true,
+            (Some(&&Four), Some(&&Five), Some(&&Six), Some(&&Seven), Some(&&Eight)) => true,
+            (Some(&&Five), Some(&&Six), Some(&&Seven), Some(&&Eight), Some(&&Nine)) => true,
+            (Some(&&Six), Some(&&Seven), Some(&&Eight), Some(&&Nine), Some(&&Ten)) => true,
+            (Some(&&Seven), Some(&&Eight), Some(&&Nine), Some(&&Ten), Some(&&Jack)) => true,
+            (Some(&&Eight), Some(&&Nine), Some(&&Ten), Some(&&Jack), Some(&&Queen)) => true,
+            (Some(&&Nine), Some(&&Ten), Some(&&Jack), Some(&&Queen), Some(&&King)) => true,
+            (Some(&&Ten), Some(&&Jack), Some(&&Queen), Some(&&King), Some(&&Ace)) => true,
+            _ => false,
         }
     }
 
@@ -201,5 +227,17 @@ mod test {
 
     #[test] fn three_of_a_kind_beats_a_tied_three_of_a_kind_with_remaining_cards() {
         assert_hand_beats(parse_hand("4S 4H 4H 5D AH"), parse_hand("4S 4H 4H 3D AH"));
+    }
+
+    #[test] fn straight_beats_a_three_of_a_kind() {
+        assert_hand_beats(parse_hand("2S 3H 4H 5D 6H"), parse_hand("4S 4H 4H 3D AH"));
+    }
+
+    #[test] fn ace_high_straight_beats_five_high() {
+        assert_hand_beats(parse_hand("0S JS QH KD AS"), parse_hand("AH 2S 3H 4H 5D"));
+    }
+
+    #[test] fn straight_with_ace_wrapped_around_is_a_high_card() {
+        assert_hand_beats(parse_hand("4S 4H 4H 3D AH"), parse_hand("QS KH AH 2S 3H"));
     }
 }
