@@ -167,6 +167,15 @@ mod test {
         assert!(pair_of_twos < pair_of_threes);
     }
 
+    #[test] fn tied_pairs_decide_with_high_card() {
+        let higher_pair = parse_hand("3S 3H 7H JD QH");
+        let lower_pair = parse_hand("3S 3H 6H JD QH");
+
+        assert!(higher_pair != lower_pair);
+        assert!(higher_pair > lower_pair);
+        assert!(lower_pair < higher_pair);
+    }
+
     #[test] fn two_pair_beats_a_pair() {
         let two_pair = parse_hand("2S 2H 3H 3D QH");
         let pair_of_sixes = parse_hand("6S 6H 7H JD QH");
