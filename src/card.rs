@@ -133,6 +133,10 @@ impl Card {
     pub fn value(&self) -> &Value {
         &self.value
     }
+
+    pub fn suit(&self) -> &Suit {
+        &self.suit
+    }
 }
 
 impl PartialEq for Card {

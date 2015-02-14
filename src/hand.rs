@@ -11,6 +11,7 @@ enum HandRank {
     TwoPair,
     ThreeOfAKind,
     Straight,
+    Flush,
 }
 
 impl HandRank {
@@ -21,6 +22,7 @@ impl HandRank {
             &HandRank::TwoPair => 2,
             &HandRank::ThreeOfAKind => 3,
             &HandRank::Straight => 4,
+            &HandRank::Flush => 5,
         }
     }
 }
@@ -49,6 +51,9 @@ impl Hand {
     fn categorize(&self) -> HandRank {
         if self.is_straight() {
             return HandRank::Straight
+        };
+        if self.is_flush() {
+            return HandRank::Flush
         };
         let values_with_more_than_one = self.cards.iter()
             .map(|card| card.value())
@@ -89,6 +94,11 @@ impl Hand {
             (Some(&&Ten), Some(&&Jack), Some(&&Queen), Some(&&King), Some(&&Ace)) => true,
             _ => false,
         }
+    }
+
+    fn is_flush(&self) -> bool {
+        let first_suit = self.cards[0].suit();
+        self.cards.iter().all(|card| card.suit() == first_suit)
     }
 
     fn most_common_values(&self) -> Vec<&Value> {
@@ -239,5 +249,17 @@ mod test {
 
     #[test] fn straight_with_ace_wrapped_around_is_a_high_card() {
         assert_hand_beats(parse_hand("4S 4H 4H 3D AH"), parse_hand("QS KH AH 2S 3H"));
+    }
+
+    #[test] fn flush_beats_a_straight() {
+        assert_hand_beats(parse_hand("AH QH 2H 6H 7H"), parse_hand("2S 3H 4H 5D 6H"));
+    }
+
+    #[test] fn flush_is_tied_despite_suits() {
+        assert!(parse_hand("AH QH 2H 6H 7H") == parse_hand("AD QD 2D 6D 7D"));
+    }
+
+    #[test] fn flushes_are_decided_by_values() {
+        assert_hand_beats(parse_hand("AH QH 3H 6H 7H"), parse_hand("AD QD 2D 6D 7D"));
     }
 }
