@@ -12,6 +12,7 @@ enum HandRank {
     ThreeOfAKind,
     Straight,
     Flush,
+    FullHouse,
 }
 
 impl HandRank {
@@ -23,6 +24,7 @@ impl HandRank {
             &HandRank::ThreeOfAKind => 3,
             &HandRank::Straight => 4,
             &HandRank::Flush => 5,
+            &HandRank::FullHouse => 6,
         }
     }
 }
@@ -64,7 +66,12 @@ impl Hand {
                 set
             });
         match values_with_more_than_one.len() {
-            2 => HandRank::TwoPair,
+            2 => {
+                match self.cards.iter().filter(|card| values_with_more_than_one.contains(card.value())).collect::<Vec<_>>().len() {
+                     5 => HandRank::FullHouse,
+                     _ => HandRank::TwoPair ,
+                 }
+            },
             1 => {
                 match self.cards.iter().filter(|card| values_with_more_than_one.contains(card.value())).collect::<Vec<_>>().len() {
                     3 => HandRank::ThreeOfAKind,
@@ -117,8 +124,8 @@ impl Hand {
             tuples.push((value, count));
         }
         tuples.sort_by(|&(value_left, count_left), &(value_right, count_right)| {
-            match count_left.cmp(&count_right) {
-                Ordering::Equal => value_left.cmp(&value_right),
+            match count_right.cmp(&count_left) {
+                Ordering::Equal => value_right.cmp(&value_left),
                 other => other,
             }
         });
@@ -261,5 +268,17 @@ mod test {
 
     #[test] fn flushes_are_decided_by_values() {
         assert_hand_beats(parse_hand("AH QH 3H 6H 7H"), parse_hand("AD QD 2D 6D 7D"));
+    }
+
+    #[test] fn full_house_beats_a_flush() {
+        assert_hand_beats(parse_hand("0H 0S 0D AS AD"), parse_hand("AH QH 2H 6H 7H"));
+    }
+
+    #[test] fn full_house_uses_three_cards_first() {
+        assert_hand_beats(parse_hand("0H 0S 0D KS KD"), parse_hand("9H 9S 9D AS AD"));
+    }
+
+    #[test] fn full_house_uses_two_cards_last() {
+        assert_hand_beats(parse_hand("0H 0S 0D JS JD"), parse_hand("0H 0S 0D 8S 8D"));
     }
 }

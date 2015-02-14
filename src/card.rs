@@ -34,7 +34,6 @@ impl PartialOrd for Suit {
 
 #[derive(Debug, Eq, Ord, Hash)]
 pub enum Value {
-    Ace,
     Two,
     Three,
     Four,
@@ -46,7 +45,8 @@ pub enum Value {
     Ten,
     Jack,
     Queen,
-    King
+    King,
+    Ace,
 }
 
 impl Value {
