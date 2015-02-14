@@ -14,6 +14,7 @@ enum HandRank {
     Flush,
     FullHouse,
     FourOfAKind,
+    StraightFlush,
 }
 
 impl HandRank {
@@ -27,6 +28,7 @@ impl HandRank {
             &HandRank::Flush => 5,
             &HandRank::FullHouse => 6,
             &HandRank::FourOfAKind => 7,
+            &HandRank::StraightFlush => 8,
         }
     }
 }
@@ -53,12 +55,15 @@ impl Hand {
     }
 
     fn categorize(&self) -> HandRank {
-        if self.is_straight() {
-            return HandRank::Straight
-        };
-        if self.is_flush() {
-            return HandRank::Flush
-        };
+        match (self.is_straight(), self.is_flush()) {
+            (true, true) => HandRank::StraightFlush,
+            (true, false) => HandRank::Straight,
+            (false, true) => HandRank::Flush,
+            (false, false) => self.non_straight_flush_categorize(),
+        }
+    }
+
+    fn non_straight_flush_categorize(&self) -> HandRank {
         let values_with_more_than_one = self.cards.iter()
             .map(|card| card.value())
             .filter(|&value| {
@@ -300,5 +305,13 @@ mod test {
 
     #[test] fn four_of_a_kind_uses_final_card_for_ties() {
         assert_hand_beats(parse_hand("0H 0S 0D 0C 6D"), parse_hand("0H 0S 0D 0C 5D"));
+    }
+
+    #[test] fn straight_flush_beats_a_four_of_a_kind() {
+        assert_hand_beats(parse_hand("AH 2H 3H 4H 5H"), parse_hand("JH JS JD JC 8D"));
+    }
+
+    #[test] fn straight_flush_beats_a_lower_straight_flush() {
+        assert_hand_beats(parse_hand("2H 3H 4H 5H 6H"), parse_hand("AH 2H 3H 4H 5H"));
     }
 }
