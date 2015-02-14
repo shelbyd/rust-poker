@@ -17,12 +17,13 @@ enum HandRank {
     StraightFlush,
 }
 
-struct Hand {
+#[derive(Debug, Eq)]
+pub struct Hand {
     cards: Vec<Card>,
 }
 
 impl Hand {
-    fn new(cards: Vec<Card>) -> Hand {
+    pub fn new(cards: Vec<Card>) -> Hand {
         Hand { cards: cards }
     }
 
@@ -159,6 +160,15 @@ impl PartialOrd for Hand {
                 self.most_common_values().partial_cmp(&other.most_common_values())
             },
             other => other
+        }
+    }
+}
+
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.partial_cmp(&other) {
+            Some(order) => order,
+            None => Ordering::Equal
         }
     }
 }
