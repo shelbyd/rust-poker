@@ -7,6 +7,7 @@ enum HandRank {
     HighCard,
     Pair,
     TwoPair,
+    ThreeOfAKind,
 }
 
 impl HandRank {
@@ -15,6 +16,7 @@ impl HandRank {
             &HandRank::HighCard => 0,
             &HandRank::Pair => 1,
             &HandRank::TwoPair => 2,
+            &HandRank::ThreeOfAKind => 3,
         }
     }
 }
@@ -51,7 +53,14 @@ impl Hand {
             });
         match values_with_more_than_one.len() {
             2 => HandRank::TwoPair,
-            1 => HandRank::Pair,
+            1 => {
+                let thing: Vec<&Card> = self.cards.iter().filter(|card| values_with_more_than_one.contains(card.value())).collect();
+                let count_of_value = thing.len();
+                match count_of_value {
+                    3 => HandRank::ThreeOfAKind,
+                    _ => HandRank::Pair,
+                }
+            },
             _ => HandRank::HighCard,
         }
     }
@@ -207,5 +216,17 @@ mod test {
         let low_two_pair = parse_hand("4S 4H 5H 5D KH");
 
         assert_hand_beats(high_two_pair, low_two_pair);
+    }
+
+    #[test] fn three_of_a_kind_beats_two_pair() {
+        assert_hand_beats(parse_hand("4S 4H 4H 5D AH"), parse_hand("4S 4H 5H 5D KH"));
+    }
+
+    #[test] fn three_of_a_kind_beats_a_lower_three_of_a_kind() {
+        assert_hand_beats(parse_hand("4S 4H 4H 5D AH"), parse_hand("3S 3H 3H 5D KH"));
+    }
+
+    #[test] fn three_of_a_kind_beats_a_tied_three_of_a_kind_with_remaining_cards() {
+        assert_hand_beats(parse_hand("4S 4H 4H 5D AH"), parse_hand("4S 4H 4H 3D AH"));
     }
 }
