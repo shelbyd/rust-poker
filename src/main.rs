@@ -30,15 +30,21 @@ fn get_hand() -> Hand {
                 match string.parse::<Hand>() {
                     Ok(hand) => return hand,
                     _ => {
-                        println!("Could not read that");
+                        could_not_interpret_input();
                         continue
                     },
                 }
             },
             Err(_) => {
-                println!("Could not read that");
+                could_not_interpret_input();
                 continue
             },
         }
     }
+}
+
+fn could_not_interpret_input() {
+    println!("I don't recognize that as a poker hand...");
+    println!("Sample input: AS 2H 0C QD 6H");
+    print!("Please try again: ");
 }
