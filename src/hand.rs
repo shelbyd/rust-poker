@@ -132,7 +132,12 @@ impl Hand {
                 other => other,
             }
         });
-        tuples.iter().map(|&(value, _)| value).collect()
+        let mut values = tuples.iter().map(|&(value, _)| value).collect::<Vec<&Value>>();
+        if self.is_straight() && values.contains(&&Ace) && values.contains(&&Five) {
+            let removed = values.remove(0);
+            values.push(removed);
+        }
+        values
     }
 }
 
@@ -255,6 +260,10 @@ mod test {
 
     #[test] fn ace_high_straight_beats_five_high() {
         assert_hand_beats(parse_hand("0S JS QH KD AS"), parse_hand("AH 2S 3H 4H 5D"));
+    }
+
+    #[test] fn six_high_straight_beats_five_high() {
+        assert_hand_beats(parse_hand("2H 3S 4H 5H 6D"), parse_hand("AH 2S 3H 4H 5D"));
     }
 
     #[test] fn straight_with_ace_wrapped_around_is_a_high_card() {
