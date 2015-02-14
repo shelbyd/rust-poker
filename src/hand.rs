@@ -134,6 +134,12 @@ mod test {
         s.parse().ok().unwrap()
     }
 
+    fn assert_hand_beats(winner: Hand, loser: Hand) {
+        assert!(winner != loser);
+        assert!(winner > loser);
+        assert!(loser < winner);
+    }
+
     #[test] fn high_card_equals_high_card() {
         let high_card = parse_hand("5D 6H 7H AS JD");
         let other_high_card = parse_hand("5H 6C 7C AS JD");
@@ -144,80 +150,62 @@ mod test {
         let ace_high_card = parse_hand("AS 6H 7H JD QH");
         let king_high_card = parse_hand("KS 7C 8C JD QH");
 
-        assert!(ace_high_card != king_high_card);
-        assert!(ace_high_card > king_high_card);
-        assert!(king_high_card < ace_high_card);
+        assert_hand_beats(ace_high_card, king_high_card);
     }
 
     #[test] fn tied_high_card_decides_with_lower_cards() {
         let high_card = parse_hand("5D 6H 7H AS JD");
         let lower_high_card = parse_hand("4H 6C 7C AS JD");
 
-        assert!(high_card != lower_high_card);
-        assert!(high_card > lower_high_card);
-        assert!(lower_high_card < high_card);
+        assert_hand_beats(high_card, lower_high_card);
     }
 
     #[test] fn a_pair_beats_a_high_card() {
         let pair_of_threes = parse_hand("3S 3H 7H JD QH");
         let king_high_card = parse_hand("KS 4C 8C JD QH");
 
-        assert!(pair_of_threes != king_high_card);
-        assert!(pair_of_threes > king_high_card);
-        assert!(king_high_card < pair_of_threes);
+        assert_hand_beats(pair_of_threes, king_high_card);
     }
 
     #[test] fn a_pair_beats_a_worse_pair() {
         let pair_of_threes = parse_hand("3S 3H 7H JD QH");
         let pair_of_twos = parse_hand("2S 2H 7H JD QH");
 
-        assert!(pair_of_threes != pair_of_twos);
-        assert!(pair_of_threes > pair_of_twos);
-        assert!(pair_of_twos < pair_of_threes);
+        assert_hand_beats(pair_of_threes, pair_of_twos);
     }
 
     #[test] fn tied_pairs_decide_with_high_card() {
         let higher_pair = parse_hand("3S 3H 7H JD QH");
         let lower_pair = parse_hand("3S 3H 6H JD QH");
 
-        assert!(higher_pair != lower_pair);
-        assert!(higher_pair > lower_pair);
-        assert!(lower_pair < higher_pair);
+        assert_hand_beats(higher_pair, lower_pair);
     }
 
     #[test] fn two_pair_beats_a_pair() {
         let two_pair = parse_hand("2S 2H 3H 3D QH");
         let pair_of_sixes = parse_hand("6S 6H 7H JD QH");
 
-        assert!(two_pair != pair_of_sixes);
-        assert!(two_pair > pair_of_sixes);
-        assert!(pair_of_sixes < two_pair);
+        assert_hand_beats(two_pair, pair_of_sixes);
     }
 
     #[test] fn two_pair_beats_a_lower_two_pair() {
         let high_two_pair = parse_hand("4S 4H 5H 5D QH");
         let low_two_pair = parse_hand("2S 2H 3H 3D QH");
 
-        assert!(high_two_pair != low_two_pair);
-        assert!(high_two_pair > low_two_pair);
-        assert!(low_two_pair < high_two_pair);
+        assert_hand_beats(high_two_pair, low_two_pair);
     }
 
     #[test] fn two_pair_tied_first_decides_with_lower() {
         let high_two_pair = parse_hand("4S 4H 5H 5D QH");
         let low_two_pair = parse_hand("2S 2H 5H 5D QH");
 
-        assert!(high_two_pair != low_two_pair);
-        assert!(high_two_pair > low_two_pair);
-        assert!(low_two_pair < high_two_pair);
+        assert_hand_beats(high_two_pair, low_two_pair);
     }
 
     #[test] fn two_pair_tied_all_decides_with_last_card() {
         let high_two_pair = parse_hand("4S 4H 5H 5D AH");
         let low_two_pair = parse_hand("4S 4H 5H 5D KH");
 
-        assert!(high_two_pair != low_two_pair);
-        assert!(high_two_pair > low_two_pair);
-        assert!(low_two_pair < high_two_pair);
+        assert_hand_beats(high_two_pair, low_two_pair);
     }
 }
