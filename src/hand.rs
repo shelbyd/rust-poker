@@ -13,6 +13,7 @@ enum HandRank {
     Straight,
     Flush,
     FullHouse,
+    FourOfAKind,
 }
 
 impl HandRank {
@@ -25,6 +26,7 @@ impl HandRank {
             &HandRank::Straight => 4,
             &HandRank::Flush => 5,
             &HandRank::FullHouse => 6,
+            &HandRank::FourOfAKind => 7,
         }
     }
 }
@@ -74,6 +76,7 @@ impl Hand {
             },
             1 => {
                 match self.cards.iter().filter(|card| values_with_more_than_one.contains(card.value())).collect::<Vec<_>>().len() {
+                    4 => HandRank::FourOfAKind,
                     3 => HandRank::ThreeOfAKind,
                     _ => HandRank::Pair,
                 }
@@ -280,5 +283,13 @@ mod test {
 
     #[test] fn full_house_uses_two_cards_last() {
         assert_hand_beats(parse_hand("0H 0S 0D JS JD"), parse_hand("0H 0S 0D 8S 8D"));
+    }
+
+    #[test] fn four_of_a_kind_beats_a_full_house() {
+        assert_hand_beats(parse_hand("0H 0S 0D 0C AD"), parse_hand("JH JS JD 8S 8D"));
+    }
+
+    #[test] fn four_of_a_kind_uses_final_card_for_ties() {
+        assert_hand_beats(parse_hand("0H 0S 0D 0C 6D"), parse_hand("0H 0S 0D 0C 5D"));
     }
 }
