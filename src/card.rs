@@ -1,38 +1,14 @@
-use std::cmp::Ordering;
 use std::str::FromStr;
 
-#[derive(Debug, Eq, Ord, Hash)]
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum Suit {
     Diamond,
     Club,
     Heart,
-    Spade
+    Spade,
 }
 
-impl Suit {
-    fn _value(&self) -> u8 {
-        match self {
-            &Suit::Diamond => 0u8,
-            &Suit::Club => 1u8,
-            &Suit::Heart => 2u8,
-            &Suit::Spade => 3u8
-        }
-    }
-}
-
-impl PartialEq for Suit {
-    fn eq(&self, other: &Self) -> bool {
-        self._value().eq(&other._value())
-    }
-}
-
-impl PartialOrd for Suit {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self._value().partial_cmp(&other._value())
-    }
-}
-
-#[derive(Debug, Eq, Ord, Hash)]
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum Value {
     Two,
     Three,
@@ -49,39 +25,7 @@ pub enum Value {
     Ace,
 }
 
-impl Value {
-    fn _value(&self) -> u8 {
-        match self {
-            &Value::Two => 1u8,
-            &Value::Three => 2u8,
-            &Value::Four => 3u8,
-            &Value::Five => 4u8,
-            &Value::Six => 5u8,
-            &Value::Seven => 6u8,
-            &Value::Eight => 7u8,
-            &Value::Nine => 8u8,
-            &Value::Ten => 9u8,
-            &Value::Jack => 10u8,
-            &Value::Queen => 11u8,
-            &Value::King => 12u8,
-            &Value::Ace => 13u8,
-        }
-    }
-}
-
-impl PartialEq for Value {
-    fn eq(&self, other: &Self) -> bool {
-        self._value().eq(&other._value())
-    }
-}
-
-impl PartialOrd for Value {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self._value().partial_cmp(&other._value())
-    }
-}
-
-#[derive(Debug, Eq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Card {
     value: Value,
     suit: Suit,
@@ -136,13 +80,6 @@ impl Card {
 
     pub fn suit(&self) -> &Suit {
         &self.suit
-    }
-}
-
-impl PartialEq for Card {
-    fn eq(&self, other: &Self) -> bool {
-        self.value.eq(&other.value) &&
-        self.suit.eq(&other.suit)
     }
 }
 

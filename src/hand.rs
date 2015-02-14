@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
 enum HandRank {
     HighCard,
     Pair,
@@ -15,34 +15,6 @@ enum HandRank {
     FullHouse,
     FourOfAKind,
     StraightFlush,
-}
-
-impl HandRank {
-    fn _value(&self) -> u8 {
-        match self {
-            &HandRank::HighCard => 0,
-            &HandRank::Pair => 1,
-            &HandRank::TwoPair => 2,
-            &HandRank::ThreeOfAKind => 3,
-            &HandRank::Straight => 4,
-            &HandRank::Flush => 5,
-            &HandRank::FullHouse => 6,
-            &HandRank::FourOfAKind => 7,
-            &HandRank::StraightFlush => 8,
-        }
-    }
-}
-
-impl PartialEq for HandRank {
-    fn eq(&self, other: &Self) -> bool {
-        self._value().eq(&other._value())
-    }
-}
-
-impl PartialOrd for HandRank {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self._value().partial_cmp(&other._value())
-    }
 }
 
 struct Hand {
