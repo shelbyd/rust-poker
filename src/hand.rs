@@ -149,6 +149,15 @@ mod test {
         assert!(king_high_card < ace_high_card);
     }
 
+    #[test] fn tied_high_card_decides_with_lower_cards() {
+        let high_card = parse_hand("5D 6H 7H AS JD");
+        let lower_high_card = parse_hand("4H 6C 7C AS JD");
+
+        assert!(high_card != lower_high_card);
+        assert!(high_card > lower_high_card);
+        assert!(lower_high_card < high_card);
+    }
+
     #[test] fn a_pair_beats_a_high_card() {
         let pair_of_threes = parse_hand("3S 3H 7H JD QH");
         let king_high_card = parse_hand("KS 4C 8C JD QH");
