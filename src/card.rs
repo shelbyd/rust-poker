@@ -36,7 +36,7 @@ impl FromStr for Card {
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         let mut iter = s.chars();
         let value = match iter.next() {
-            Some('A') => Some(Value::Ace),
+            Some('A') | Some('a') => Some(Value::Ace),
             Some('2') => Some(Value::Two),
             Some('3') => Some(Value::Three),
             Some('4') => Some(Value::Four),
@@ -46,16 +46,16 @@ impl FromStr for Card {
             Some('8') => Some(Value::Eight),
             Some('9') => Some(Value::Nine),
             Some('0') => Some(Value::Ten),
-            Some('J') => Some(Value::Jack),
-            Some('Q') => Some(Value::Queen),
-            Some('K') => Some(Value::King),
+            Some('J') | Some('j') => Some(Value::Jack),
+            Some('Q') | Some('q') => Some(Value::Queen),
+            Some('K') | Some('k') => Some(Value::King),
             _ => None,
         };
         let suit = match iter.next() {
-            Some('D') => Some(Suit::Diamond),
-            Some('C') => Some(Suit::Club),
-            Some('H') => Some(Suit::Heart),
-            Some('S') => Some(Suit::Spade),
+            Some('D') | Some('d') => Some(Suit::Diamond),
+            Some('C') | Some('c') => Some(Suit::Club),
+            Some('H') | Some('h') => Some(Suit::Heart),
+            Some('S') | Some('s') => Some(Suit::Spade),
             _ => None,
         };
         match (value, suit) {
