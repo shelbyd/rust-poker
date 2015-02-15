@@ -368,27 +368,39 @@ mod tests {
     use super::test::Bencher;
 
     #[bench] fn bench_comparing_five_cards(b: &mut Bencher) {
-        b.iter(|| parse_hand("2H 3H 4H 5H 6H") == parse_hand("AH 2H 3H 4H 5H"));
+		let left_hand = parse_hand("2H 3H 4H 5H 6H");
+		let right_hand = parse_hand("AH 2H 3H 4H 5H");
+		b.iter(|| left_hand == right_hand);
     }
 
     #[bench] fn bench_comparing_six_cards(b: &mut Bencher) {
-        b.iter(|| parse_hand("2H 3H 4H 5H 6H 3C") == parse_hand("AH 2H 3H 4H 5H AS"));
+        let left_hand = parse_hand("2H 3H 4H 5H 6H 3C");
+		let right_hand = parse_hand("AH 2H 3H 4H 5H AS");
+		b.iter(|| left_hand == right_hand);
     }
 
     #[bench] fn bench_comparing_seven_cards(b: &mut Bencher) {
-        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH") == parse_hand("AH 2H 3H 4H 5H 9S JH"));
+        let left_hand = parse_hand("2H 3H 4H 5H 6H 9S JH");
+		let right_hand = parse_hand("AH 2H 3H 4H 5H 9S JH");
+		b.iter(|| left_hand == right_hand);
     }
 
     #[bench] fn bench_comparing_eight_cards(b: &mut Bencher) {
-        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH KS") == parse_hand("AH 2H 3H 4H 5H 9S JH KD"));
+        let left_hand = parse_hand("2H 3H 4H 5H 6H 9S JH KS");
+		let right_hand = parse_hand("AH 2H 3H 4H 5H 9S JH KD");
+		b.iter(|| left_hand == right_hand);
     }
 
     #[bench] fn bench_comparing_nine_cards(b: &mut Bencher) {
-        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH KS 9D") == parse_hand("AH 2H 3H 4H 5H 9S JH KD AS"));
+        let left_hand = parse_hand("2H 3H 4H 5H 6H 9S JH KS 9D");
+		let right_hand = parse_hand("AH 2H 3H 4H 5H 9S JH KD AS");
+		b.iter(|| left_hand == right_hand);
     }
 
     #[bench] fn bench_comparing_ten_cards(b: &mut Bencher) {
-        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH KS 9D 3C") == parse_hand("AH 2H 3H 4H 5H 9S JH KD AS 2C"));
+        let left_hand = parse_hand("2H 3H 4H 5H 6H 9S JH KS 9D 3C");
+		let right_hand = parse_hand("AH 2H 3H 4H 5H 9S JH KD AS 2C");
+		b.iter(|| left_hand == right_hand);
     }
 
     #[test] fn can_add_hands() {
