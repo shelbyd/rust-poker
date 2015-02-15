@@ -1,3 +1,5 @@
+extern crate test;
+
 use card::{Card, Value};
 use card::Value::*;
 use std::cmp::Ordering;
@@ -119,12 +121,34 @@ impl Hand {
     }
 
     fn sub_hands(&self) -> Vec<Hand> {
-        self.cards.iter().map(|card_to_ignore| {
-            Hand::new(self.cards.iter()
-                      .filter(|&card| card != card_to_ignore)
-                      .map(|&card| card)
-                      .collect())
-        }).collect()
+        let r = 5;
+        let n = self.cards.len();
+        let mut indices = range(0, r).collect::<Vec<usize>>();
+        let mut result = vec![];
+        result.push(self.hand_from_indices(&indices));
+        loop {
+            let mut i = 0;;
+            let mut broke = false;
+            for _i in range(0, r).rev() {
+                if *indices.get(_i).unwrap() != _i + n - r {
+                    i = _i;
+                    broke = true;
+                    break;
+                }
+            };
+            if !broke {
+                return result
+            };
+            indices[i] += 1;
+            for j in range(i+1, r) {
+                indices[j] = indices[j-1] + 1;
+            }
+            result.push(self.hand_from_indices(&indices));
+        }
+    }
+
+    fn hand_from_indices(&self, indices: &Vec<usize>) -> Hand {
+        Hand::new(indices.iter().map(|&index| self.cards.get(index).unwrap()).map(|&card| card).collect())
     }
 }
 
@@ -206,7 +230,7 @@ impl Add for Hand {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::Hand;
 
     fn parse_hand(s: &str) -> Hand {
@@ -339,6 +363,32 @@ mod test {
 
     #[test] fn seven_card_hand_ignores_last_card() {
         assert!(parse_hand("2H 3H 4H 5H 6H 9D AS") == parse_hand("2H 3H 4H 5H 6H 9D KS"));
+    }
+
+    use super::test::Bencher;
+
+    #[bench] fn bench_comparing_five_cards(b: &mut Bencher) {
+        b.iter(|| parse_hand("2H 3H 4H 5H 6H") == parse_hand("AH 2H 3H 4H 5H"));
+    }
+
+    #[bench] fn bench_comparing_six_cards(b: &mut Bencher) {
+        b.iter(|| parse_hand("2H 3H 4H 5H 6H 3C") == parse_hand("AH 2H 3H 4H 5H AS"));
+    }
+
+    #[bench] fn bench_comparing_seven_cards(b: &mut Bencher) {
+        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH") == parse_hand("AH 2H 3H 4H 5H 9S JH"));
+    }
+
+    #[bench] fn bench_comparing_eight_cards(b: &mut Bencher) {
+        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH KS") == parse_hand("AH 2H 3H 4H 5H 9S JH KD"));
+    }
+
+    #[bench] fn bench_comparing_nine_cards(b: &mut Bencher) {
+        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH KS 9D") == parse_hand("AH 2H 3H 4H 5H 9S JH KD AS"));
+    }
+
+    #[bench] fn bench_comparing_ten_cards(b: &mut Bencher) {
+        b.iter(|| parse_hand("2H 3H 4H 5H 6H 9S JH KS 9D 3C") == parse_hand("AH 2H 3H 4H 5H 9S JH KD AS 2C"));
     }
 
     #[test] fn can_add_hands() {

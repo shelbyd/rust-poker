@@ -1,7 +1,6 @@
 mod card;
 mod hand;
 
-
 #[cfg(not(test))]
 fn main() {
     use std::cmp::Ordering;
