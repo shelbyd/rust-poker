@@ -323,4 +323,8 @@ mod test {
     #[test] fn seven_card_hand_flush() {
         assert_hand_beats(parse_hand("2H 3H 0H 5H 6H 9D KS"), parse_hand("2H 3H 7C 5H 6H 9D AS"));
     }
+
+    #[test] fn seven_card_hand_ignores_last_card() {
+        assert!(parse_hand("2H 3H 4H 5H 6H 9D AS") == parse_hand("2H 3H 4H 5H 6H 9D KS"));
+    }
 }
