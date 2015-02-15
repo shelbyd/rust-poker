@@ -6,10 +6,8 @@ fn main() {
     use std::cmp::Ordering;
 
     loop {
-        print!("Please enter your hand: ");
-        let your_hand = support::get_hand();
-        print!("Please enter opponent's hand: ");
-        let opponents_hand = support::get_hand();
+        let your_hand = support::get_hand("Please enter your hand: ");
+        let opponents_hand = support::get_hand("Please enter opponent's hand: ");
         let result = match your_hand.cmp(&opponents_hand) {
             Ordering::Equal => "It's a tie",
             Ordering::Greater => "You win!",
@@ -25,7 +23,8 @@ mod support {
     use std::old_io;
     use hand::Hand;
 
-    pub fn get_hand() -> Hand {
+    pub fn get_hand(prompt: &str) -> Hand {
+		print!("{}", prompt);
         loop {
             let mut reader = old_io::stdin();
             match reader.read_line() {
