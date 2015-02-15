@@ -127,23 +127,18 @@ impl Hand {
         let mut result = vec![];
         result.push(self.hand_from_indices(&indices));
         loop {
-            let mut i = 0;;
-            let mut broke = false;
-            for _i in range(0, r).rev() {
-                if *indices.get(_i).unwrap() != _i + n - r {
-                    i = _i;
-                    broke = true;
-                    break;
+            let first_thing = range(0, r).rev().filter(|&_i| *indices.get(_i).unwrap() != _i + n - r).take(1).collect::<Vec<usize>>();
+            match first_thing.len() {
+                0 => return result,
+                1 | _ => {
+                    let i = first_thing[0];
+                    indices[i] += 1;
+                    for j in range(i+1, r) {
+                        indices[j] = indices[j-1] + 1;
+                    }
+                    result.push(self.hand_from_indices(&indices));
                 }
-            };
-            if !broke {
-                return result
-            };
-            indices[i] += 1;
-            for j in range(i+1, r) {
-                indices[j] = indices[j-1] + 1;
             }
-            result.push(self.hand_from_indices(&indices));
         }
     }
 
@@ -359,6 +354,10 @@ mod tests {
 
     #[test] fn seven_card_hand_flush() {
         assert_hand_beats(parse_hand("2H 3H 0H 5H 6H 9D KS"), parse_hand("2H 3H 7C 5H 6H 9D AS"));
+    }
+
+    #[test] fn seven_card_hand_last_five_are_best_flush() {
+        assert_hand_beats(parse_hand("KS 9D 2H 3H 0H 5H 6H"), parse_hand("2H 3H 7C 5H 6H 9D AS"));
     }
 
     #[test] fn seven_card_hand_ignores_last_card() {
