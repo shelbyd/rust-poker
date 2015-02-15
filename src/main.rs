@@ -6,9 +6,12 @@ fn main() {
     use std::cmp::Ordering;
 
     loop {
-        let your_hand = support::get_hand("Please enter your hand: ");
-        let opponents_hand = support::get_hand("Please enter opponent's hand: ");
-        let result = match your_hand.cmp(&opponents_hand) {
+        let your_pocket = support::get_hand("Please enter your pocket: ");
+		let opponents_pocket = support::get_hand("Please enter the opponent's pocket: ");
+        let community_cards = support::get_hand("Please enter the community cards: ");
+		let community_copy = community_cards.clone();
+
+        let result = match (your_pocket + community_cards).cmp(&(opponents_pocket + community_copy)) {
             Ordering::Equal => "It's a tie",
             Ordering::Greater => "You win!",
             Ordering::Less => "You lose",

@@ -20,7 +20,7 @@ enum HandRank {
     StraightFlush,
 }
 
-#[derive(Debug, Eq)]
+#[derive(Debug, Eq, Clone)]
 pub struct Hand {
     cards: Vec<Card>,
 }

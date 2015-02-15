@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Hash, Copy)]
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Hash, Copy, Clone)]
 pub enum Suit {
     Diamond,
     Club,
@@ -8,7 +8,7 @@ pub enum Suit {
     Spade,
 }
 
-#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Hash, Copy)]
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd, Hash, Copy, Clone)]
 pub enum Value {
     Two,
     Three,
@@ -25,7 +25,7 @@ pub enum Value {
     Ace,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Ord, PartialOrd)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Ord, PartialOrd, Clone)]
 pub struct Card {
     value: Value,
     suit: Suit,
