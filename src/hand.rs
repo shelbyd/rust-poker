@@ -117,6 +117,15 @@ impl Hand {
         }
         values
     }
+
+    fn sub_hands(&self) -> Vec<Hand> {
+        self.cards.iter().map(|card_to_ignore| {
+            Hand::new(self.cards.iter()
+                      .filter(|&card| card != card_to_ignore)
+                      .map(|&card| card)
+                      .collect())
+        }).collect()
+    }
 }
 
 impl FromStr for Hand {
@@ -155,11 +164,24 @@ impl PartialEq for Hand {
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match self.categorize().partial_cmp(&other.categorize()) {
-            Some(Ordering::Equal) => {
-                self.most_common_values().partial_cmp(&other.most_common_values())
+        match self.cards.len() > 5 {
+            true => {
+                let my_sub_hands = self.sub_hands();
+                let other_sub_hands = other.sub_hands();
+
+                let my_best_hand = my_sub_hands.iter().max();
+                let other_best_hand = other_sub_hands.iter().max();
+
+                my_best_hand.partial_cmp(&other_best_hand)
             },
-            other => other
+            false => {
+                match self.categorize().partial_cmp(&other.categorize()) {
+                    Some(Ordering::Equal) => {
+                        self.most_common_values().partial_cmp(&other.most_common_values())
+                    },
+                    other => other
+                }
+            }
         }
     }
 }
@@ -295,5 +317,13 @@ mod test {
 
     #[test] fn straight_flush_beats_a_lower_straight_flush() {
         assert_hand_beats(parse_hand("2H 3H 4H 5H 6H"), parse_hand("AH 2H 3H 4H 5H"));
+    }
+
+    #[test] fn seven_card_hand_high_cards() {
+        assert_hand_beats(parse_hand("2H 3H 7C 5H 6H 9D JS"), parse_hand("2H 3H 7C 5H 6H 9D 0S"));
+    }
+
+    #[test] fn seven_card_hand_flush() {
+        assert_hand_beats(parse_hand("2H 3H 0H 5H 6H 9D KS"), parse_hand("2H 3H 7C 5H 6H 9D AS"));
     }
 }
