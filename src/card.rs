@@ -25,7 +25,7 @@ pub enum Value {
     Ace,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Ord, PartialOrd)]
 pub struct Card {
     value: Value,
     suit: Suit,

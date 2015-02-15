@@ -3,6 +3,7 @@ use card::Value::*;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
+use std::ops::Add;
 
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
 enum HandRank {
@@ -192,6 +193,18 @@ impl Ord for Hand {
     }
 }
 
+impl Add for Hand {
+    type Output = Hand;
+    fn add(mut self, mut other: Self) -> Self {
+        let mut new_cards = vec![];
+        new_cards.append(&mut self.cards);
+        new_cards.append(&mut other.cards);
+        new_cards.sort();
+        new_cards.dedup();
+        Hand::new(new_cards)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::Hand;
@@ -326,5 +339,13 @@ mod test {
 
     #[test] fn seven_card_hand_ignores_last_card() {
         assert!(parse_hand("2H 3H 4H 5H 6H 9D AS") == parse_hand("2H 3H 4H 5H 6H 9D KS"));
+    }
+
+    #[test] fn can_add_hands() {
+        assert!(parse_hand("AS 0H") + parse_hand("9D 3C 5S") == parse_hand("AS 0H 9D 3C 5S"));
+    }
+
+    #[test] fn add_hands_does_not_duplicate_cards() {
+        assert!(parse_hand("AS") + parse_hand("AS AH") == parse_hand("AS AH"));
     }
 }
