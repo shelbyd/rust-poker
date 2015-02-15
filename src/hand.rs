@@ -67,19 +67,18 @@ impl Hand {
         let mut values = self.cards.iter().map(|card| card.value()).collect::<Vec<&Value>>();
         values.sort();
 
-        let mut value_iter = values.iter();
-
+        let mut value_iter = values.iter().map(|&value| value);
         match (value_iter.next(), value_iter.next(), value_iter.next(), value_iter.next(), value_iter.next()) {
-            (Some(&&Two), Some(&&Three), Some(&&Four), Some(&&Five), Some(&&Ace)) => true,
-            (Some(&&Two), Some(&&Three), Some(&&Four), Some(&&Five), Some(&&Six)) => true,
-            (Some(&&Three), Some(&&Four), Some(&&Five), Some(&&Six), Some(&&Seven)) => true,
-            (Some(&&Four), Some(&&Five), Some(&&Six), Some(&&Seven), Some(&&Eight)) => true,
-            (Some(&&Five), Some(&&Six), Some(&&Seven), Some(&&Eight), Some(&&Nine)) => true,
-            (Some(&&Six), Some(&&Seven), Some(&&Eight), Some(&&Nine), Some(&&Ten)) => true,
-            (Some(&&Seven), Some(&&Eight), Some(&&Nine), Some(&&Ten), Some(&&Jack)) => true,
-            (Some(&&Eight), Some(&&Nine), Some(&&Ten), Some(&&Jack), Some(&&Queen)) => true,
-            (Some(&&Nine), Some(&&Ten), Some(&&Jack), Some(&&Queen), Some(&&King)) => true,
-            (Some(&&Ten), Some(&&Jack), Some(&&Queen), Some(&&King), Some(&&Ace)) => true,
+            (Some(&Two), Some(&Three), Some(&Four), Some(&Five), Some(&Ace)) => true,
+            (Some(&Two), Some(&Three), Some(&Four), Some(&Five), Some(&Six)) => true,
+            (Some(&Three), Some(&Four), Some(&Five), Some(&Six), Some(&Seven)) => true,
+            (Some(&Four), Some(&Five), Some(&Six), Some(&Seven), Some(&Eight)) => true,
+            (Some(&Five), Some(&Six), Some(&Seven), Some(&Eight), Some(&Nine)) => true,
+            (Some(&Six), Some(&Seven), Some(&Eight), Some(&Nine), Some(&Ten)) => true,
+            (Some(&Seven), Some(&Eight), Some(&Nine), Some(&Ten), Some(&Jack)) => true,
+            (Some(&Eight), Some(&Nine), Some(&Ten), Some(&Jack), Some(&Queen)) => true,
+            (Some(&Nine), Some(&Ten), Some(&Jack), Some(&Queen), Some(&King)) => true,
+            (Some(&Ten), Some(&Jack), Some(&Queen), Some(&King), Some(&Ace)) => true,
             _ => false,
         }
     }
@@ -132,8 +131,6 @@ impl FromStr for Hand {
     type Err = HandParseErr;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         let cards: Vec<Option<Card>> = s.split_str(" ")
-            .collect::<Vec<&str>>()
-            .iter()
             .map(|card_string| {
                 match card_string.parse() {
                     Ok(result) => Some(result),
