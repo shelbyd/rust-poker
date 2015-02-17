@@ -2,11 +2,11 @@
 name = "poker"
 version = "0.0.1"
 dependencies = [
- "rust_combinatorics 0.0.1 (git+https://github.com/shelbyd/rust-combinatorics.git)",
+ "rust_combinatorics 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "rust_combinatorics"
 version = "0.0.1"
-source = "git+https://github.com/shelbyd/rust-combinatorics.git#d53ebc89baa9572aa7948aecad0dacb483e14eb6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
