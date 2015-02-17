@@ -7,6 +7,9 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::ops::Add;
 
+extern crate rust_combinatorics;
+use self::rust_combinatorics::combinatorics::binomial::Chooseable;
+
 #[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
 enum HandRank {
     HighCard,
@@ -119,32 +122,6 @@ impl Hand {
         }
         values
     }
-
-    fn sub_hands(&self) -> Vec<Hand> {
-        let r = 5;
-        let n = self.cards.len();
-        let mut indices = range(0, r).collect::<Vec<usize>>();
-        let mut result = vec![];
-        result.push(self.hand_from_indices(&indices));
-        loop {
-            let first_thing = range(0, r).rev().filter(|&_i| *indices.get(_i).unwrap() != _i + n - r).take(1).collect::<Vec<usize>>();
-            match first_thing.len() {
-                0 => return result,
-                1 | _ => {
-                    let i = first_thing[0];
-                    indices[i] += 1;
-                    for j in range(i+1, r) {
-                        indices[j] = indices[j-1] + 1;
-                    }
-                    result.push(self.hand_from_indices(&indices));
-                }
-            }
-        }
-    }
-
-    fn hand_from_indices(&self, indices: &Vec<usize>) -> Hand {
-        Hand::new(indices.iter().map(|&index| self.cards.get(index).unwrap()).map(|&card| card).collect())
-    }
 }
 
 impl FromStr for Hand {
@@ -183,11 +160,8 @@ impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match self.cards.len() > 5 {
             true => {
-                let my_sub_hands = self.sub_hands();
-                let other_sub_hands = other.sub_hands();
-
-                let my_best_hand = my_sub_hands.iter().max();
-                let other_best_hand = other_sub_hands.iter().max();
+                let my_best_hand = self.cards.clone().choose(5).map(|cards| Hand::new(cards)).max();
+                let other_best_hand = other.cards.clone().choose(5).map(|cards| Hand::new(cards)).max();
 
                 my_best_hand.partial_cmp(&other_best_hand)
             },

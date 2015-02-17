@@ -3,3 +3,6 @@
 name = "poker"
 version = "0.0.1"
 authors = ["Shelby Doolittle <shelby@shelbyd.com>"]
+
+[dependencies.rust_combinatorics]
+git = "https://github.com/shelbyd/rust-combinatorics.git"
