@@ -31,7 +31,7 @@ mod support {
             let mut reader = old_io::stdin();
             match reader.read_line() {
                 Ok(string) => {
-                    match string.parse::<Hand>() {
+                    match string.trim().parse::<Hand>() {
                         Ok(hand) => return hand,
                         _ => {
                             could_not_interpret_input();
