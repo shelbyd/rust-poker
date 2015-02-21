@@ -132,6 +132,10 @@ impl FromStr for Hand {
     type Err = HandParseErr;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         let cards: Vec<Option<Card>> = s.split_str(" ")
+            .filter(|&card_string| match card_string {
+                "" => false,
+                _ => true,
+            })
             .map(|card_string| {
                 match card_string.parse() {
                     Ok(result) => Some(result),
@@ -402,5 +406,9 @@ mod tests {
 
     #[test] fn can_subtract_hands() {
         assert!(parse_hand("AS 0H") - parse_hand("AS") == parse_hand("0H"));
+    }
+
+    #[test] fn can_parse_empty_hand() {
+        assert!(parse_hand("").cards() == vec![]);
     }
 }

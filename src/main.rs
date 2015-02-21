@@ -1,5 +1,7 @@
 mod card;
 mod hand;
+
+#[cfg(not(test))]
 mod calculations;
 
 #[cfg(not(test))]
