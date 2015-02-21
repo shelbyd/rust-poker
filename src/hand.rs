@@ -5,7 +5,7 @@ use card::Value::*;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 extern crate rust_combinatorics;
 use self::rust_combinatorics::combinatorics::binomial::Chooseable;
@@ -198,6 +198,18 @@ impl Add for Hand {
     }
 }
 
+impl Sub for Hand {
+    type Output = Hand;
+    fn sub(self, other: Self) -> Self {
+        Hand::new(self.cards
+                      .iter()
+                      .filter(|&card| other.cards.iter().all(|other_card| card != other_card))
+                      .map(|&card| card)
+                      .collect()
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Hand;
@@ -382,5 +394,9 @@ mod tests {
 
     #[test] fn add_hands_does_not_duplicate_cards() {
         assert!(parse_hand("AS") + parse_hand("AS AH") == parse_hand("AS AH"));
+    }
+
+    #[test] fn can_subtract_hands() {
+        assert!(parse_hand("AS 0H") - parse_hand("AS") == parse_hand("0H"));
     }
 }
