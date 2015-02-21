@@ -15,7 +15,7 @@ use std::cmp::Ordering;
 extern crate core;
 use self::core::num::ToPrimitive;
 
-pub fn chance_of_winning(my_pocket: Hand, community_cards: Hand) -> (f32, bool) {
+pub fn chance_of_winning(my_pocket: Hand, community_cards: Hand, other_players: usize) -> (f32, bool) {
     let mut rng = thread_rng();
     let deck = WHOLE_DECK.iter()
                     .fold(String::new(), |string, card| string + " " + card)
@@ -31,11 +31,18 @@ pub fn chance_of_winning(my_pocket: Hand, community_cards: Hand) -> (f32, bool) 
                       rng.shuffle(cards);
                       let community_cards_needed = 5 - community_cards.cards().len();
                       let community_cards = community_cards.clone() + Hand::new(cards.iter().take(community_cards_needed).map(|&card| card).collect());
-                      let opponents_pocket = Hand::new(cards.iter().skip(community_cards_needed).take(2).map(|&card| card).collect());
-                      match (my_pocket.clone() + community_cards.clone()).cmp(&(opponents_pocket + community_cards)) {
-                          Ordering::Greater => true,
-                          _ => false
-                      }
+                      range(0, other_players)
+                      .map(|player_index| {
+                          Hand::new(cards
+                                    .iter()
+                                    .skip(community_cards_needed + 2 * player_index)
+                                    .take(2)
+                                    .map(|&card| card)
+                                    .collect())
+                      })
+                      .all(|opponents_pocket| {
+                          (my_pocket.clone() + community_cards.clone()) > (opponents_pocket + community_cards.clone())
+                      })
                   }).collect::<Vec<bool>>();
     let total: f32 = results.iter().fold(0.0, |sum, _| sum + 1.0);
     let wins: f32 = results.iter().filter(|result| **result).fold(0.0, |sum, _| sum + 1.0);
