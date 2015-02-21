@@ -10,7 +10,6 @@ static WHOLE_DECK: [&'static str; 52] = [
 static SAMPLES: usize = 1000;
 
 use std::rand::{thread_rng, Rng};
-use std::cmp::Ordering;
 
 extern crate core;
 use self::core::num::ToPrimitive;
