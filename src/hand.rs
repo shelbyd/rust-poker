@@ -94,8 +94,13 @@ impl Hand {
     }
 
     fn is_flush(&self) -> bool {
-        let first_suit = self.cards[0].suit();
-        self.cards.iter().all(|card| card.suit() == first_suit)
+        match self.cards.get(0) {
+            Some(card) => {
+                let first_suit = card.suit();
+                self.cards.iter().all(|card| card.suit() == first_suit)
+            },
+            None => false,
+        }
     }
 
     fn most_common_values(&self) -> Vec<&Value> {
@@ -410,5 +415,9 @@ mod tests {
 
     #[test] fn can_parse_empty_hand() {
         assert!(parse_hand("").cards() == vec![]);
+    }
+
+    #[test] fn can_compare_empty_hands() {
+        assert!(parse_hand("") == parse_hand(""));
     }
 }
