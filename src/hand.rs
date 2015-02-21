@@ -33,6 +33,10 @@ impl Hand {
         Hand { cards: cards }
     }
 
+    pub fn cards(&self) -> Vec<Card> {
+        self.cards.clone()
+    }
+
     fn categorize(&self) -> HandRank {
         match (self.is_straight(), self.is_flush()) {
             (true, true) => HandRank::StraightFlush,

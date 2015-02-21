@@ -1,22 +1,19 @@
 mod card;
 mod hand;
+mod calculations;
 
 #[cfg(not(test))]
 fn main() {
-    use std::cmp::Ordering;
-
     loop {
         let your_pocket = support::get_hand("Please enter your pocket: ");
-		let opponents_pocket = support::get_hand("Please enter the opponent's pocket: ");
         let community_cards = support::get_hand("Please enter the community cards: ");
-		let community_copy = community_cards.clone();
 
-        let result = match (your_pocket + community_cards).cmp(&(opponents_pocket + community_copy)) {
-            Ordering::Equal => "It's a tie",
-            Ordering::Greater => "You win!",
-            Ordering::Less => "You lose",
-        };
-        println!("{}", result);
+        let (chance_of_winning, confident) = calculations::chance_of_winning(your_pocket, community_cards);
+
+        match confident {
+            true => println!("{:.2}% chance of winning", chance_of_winning * 100.0),
+            false => println!("{:.2}% NOT CONFIDENT", chance_of_winning * 100.0),
+        }
         println!("");
     }
 }

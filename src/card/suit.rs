@@ -18,6 +18,7 @@ impl Suit {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::Suit::*;
     #[test] fn suits_equal_themselves() {

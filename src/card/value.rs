@@ -37,6 +37,7 @@ impl Value {
 }
 
 
+#[cfg(test)]
 mod tests {
     use super::Value::*;
     #[test] fn values_equal_themselves() {
