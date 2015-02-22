@@ -1,7 +1,5 @@
 mod card;
 mod hand;
-
-#[cfg(not(test))]
 mod calculations;
 
 #[cfg(not(test))]
@@ -11,12 +9,9 @@ fn main() {
         let community_cards = support::get_hand("Please enter the community cards: ");
         let other_players = support::get_number("Please enter the number of opponents: ");
 
-        let (chance_of_winning, confident) = calculations::chance_of_winning(your_pocket, community_cards, other_players);
+        let (chance_of_winning, confidence_interval) = calculations::chance_of_winning(your_pocket, community_cards, other_players);
 
-        match confident {
-            true => println!("{:.2}% chance of winning", chance_of_winning * 100.0),
-            false => println!("{:.2}% NOT CONFIDENT", chance_of_winning * 100.0),
-        }
+        println!("{:.2}% ± {:.2}% chance of winning", chance_of_winning * 100.0, confidence_interval * 100.0);
         println!("");
     }
 }
